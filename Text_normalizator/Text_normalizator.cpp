@@ -42,21 +42,20 @@ namespace NRML {
 
 		while (!fin.eof()) {
 			char symbol;
-			fin >> symbol;
+			fin >> std::noskipws >> symbol;
 			std::string meaningfulSequence;
-
-			if (isInRange(symbol, lowerBorderOfMeaningfulSymbols, upperBorderOfMeaningfulSymbols))
-				meaningfulSequence.push_back(symbol);
 
 			//	skip all non-ascii symbols
 			while (!isInRange(symbol, lowerBorderOfMeaningfulSymbols, upperBorderOfMeaningfulSymbols) && !fin.eof()) {
-				fin >> std::noskipws  >> symbol;
 				fout << symbol;
-			};
-			while (isInRange(symbol, lowerBorderOfMeaningfulSymbols, upperBorderOfMeaningfulSymbols) && !fin.eof()) {
 				fin >> std::noskipws >> symbol;
-				meaningfulSequence.push_back(symbol);
 			};
+
+			while (isInRange(symbol, lowerBorderOfMeaningfulSymbols, upperBorderOfMeaningfulSymbols) && !fin.eof()) {
+				meaningfulSequence.push_back(symbol);
+				fin >> std::noskipws >> symbol;
+			};
+
 			for (auto& rule : ruleContainer.getRules()) {
 				if (rule.first.checkFunction(meaningfulSequence))
 					if (rule.second(meaningfulSequence))	//	do smth with sequence
@@ -65,6 +64,9 @@ namespace NRML {
 			for (auto newSymbol : meaningfulSequence) {
 				fout << newSymbol;
 			}
+
+			if (!fin.eof())
+				fout << symbol;
 		}
 
 		fin.close();

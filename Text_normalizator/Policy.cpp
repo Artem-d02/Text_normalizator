@@ -3,14 +3,25 @@
 
 namespace NRML {
 
+	struct ConstWords {
+		static const std::string PUT;
+		static const std::string GET;
+		static const std::string POST;
+	};
+
+	const std::string ConstWords::PUT = "PUT";
+	const std::string ConstWords::GET = "GET";
+	const std::string ConstWords::POST = "POST";
+
+
 	bool checkSelfReferencing(const std::string& str) {
-		std::string targetString = "/ ./";
+		std::string targetString = "/./";
 		bool result = (str.find(targetString) != std::string::npos);
 		return result;
 	}
 
 	bool fixSelfReferencing(std::string& str) {
-		std::string targetString = "/ ./";
+		std::string targetString = "/./";
 		auto startTargetIndex = str.find(targetString);
 		while (startTargetIndex != std::string::npos) {
 			auto startIt = str.begin() + startTargetIndex;
@@ -39,6 +50,14 @@ namespace NRML {
 				currentIt--;	// just for skip first / in /../
 			while ((*currentIt != '/') && (currentIt != str.begin())) {
 				currentIt--;
+			}
+			//	check PUT, GET, POST
+			if (currentIt == str.begin()) {
+				if (str.substr(0, 3) == ConstWords::PUT || str.substr(0, 3) == ConstWords::GET) {
+					currentIt = str.begin() + 4;	//	SIZEOF(PUT_)
+				}
+				if (str.substr(0, 4) == ConstWords::POST)
+					currentIt = str.begin() + 5;	//	SIZEOF(Post_)
 			}
 			str.replace(currentIt, endIt, "/");
 			startTargetIndex = str.find(targetString);
@@ -72,7 +91,7 @@ namespace NRML {
 	}
 
 	bool fixURLEncoding(std::string& str) {
-		std::string targetString = "%";
+		char targetChar = '%';
 		auto isHexNumber = [](char s) {
 			if (('0' <= s && s <= '9') || ('a' <= s && s <= 'f') || ('A' <= s && s <= 'F'))
 				return true;
@@ -90,8 +109,13 @@ namespace NRML {
 			return oneHexToDec(hex[0]) * 16 + oneHexToDec(hex[1]);
 		};
 
-		auto percentIndex = str.find(targetString);
-		while (percentIndex != std::string::npos) {
+		if (str.length() <= 2)
+			return false;
+
+		for (int i = 0; i < str.length(); i++) {
+			if (str[i] != targetChar)
+				continue;
+			int percentIndex = i;
 			//	if this is the last symbol
 			if (percentIndex == str.length() - 1)
 				return false;
@@ -106,8 +130,6 @@ namespace NRML {
 					str.replace(startIt, startIt + 3, std::string({ asciiCode }));
 				}
 			}
-
-			percentIndex = str.find(targetString);
 		}
 		return false;
 	}
